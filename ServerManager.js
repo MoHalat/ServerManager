@@ -3,6 +3,7 @@ const eris = require('eris');
 const Compute = require('@google-cloud/compute');
 
 const sessionClient = new dialogflow.SessionsClient();
+const config = require('./config.json');
 const projectId = config.project_id;
 const sessionId = config.id;
 const languageCode = config.language;
