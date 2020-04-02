@@ -49,7 +49,6 @@ async function executeQueries(projectId, sessionId, query, languageCode) {
   try {
     console.log(`Sending Query: ${query}`);
     intentResponse = await detectIntent(projectId, sessionId, query, context,languageCode);
-    console.log('Detected intent');
     console.log(`Fulfillment Text: ${intentResponse.queryResult.fulfillmentText}`);
     responses = `${intentResponse.queryResult.fulfillmentText}`;
     // Use the context from this response for next queries
@@ -65,8 +64,6 @@ bot.on('messageCreate', async (msg) => {
 
   try{
     var botWasMentioned = msg.mentions.find(mentionedUser => mentionedUser.id === bot.user.id,);
-    if(!botWasMentioned) botWasMentioned = false;
-    //console.log("Message is: " +content);
     if (botWasMentioned){
       content = msg.content.toString().toLowerCase().replace("<@!685821709206421504>", "")
       try {
