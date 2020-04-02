@@ -24,7 +24,9 @@ jobs:
       uses: actions/setup-node@v1
       with:
         node-version: ${{ matrix.node-version }}
-    - run: npm install
+    - run: npm i dialogflow
+    - run: npm i @google-cloud/compute
+    - run: npm i eris
     - run: node ServerManager.js
       env:
         CI: true
