@@ -26,25 +26,41 @@ exports.dialogflowFirebaseFulfillment = functions.https.onRequest((request, resp
 
   }
 
-  function activateServer(agent){
+  async function activateServer(agent){
     console.log(agent.parameters);
-    var {servers} = agent.parameters;
-    var zone = compute.zone('us-east1-b');
-    var vm = zone.vm(servers);
-    vm.start(function(err, operation, apiResponse) {
-      console.log('instance start successfully');
-    });
+    var servers = agent.parameters.servers;
+    var [vms] = await compute.getVMs();
+    await Promise.all(
+      vms.map(async (instance) => {
+        console.log(instance);
+        if (servers.includes(instance.name)) {
+          const [operation] = await compute
+            .zone(instance.zone.id)
+            .vm(instance.name)
+            .start();
+          return operation.promise();
+        }
+      })
+    );
     agent.add(`Booting up ${servers}`);
   }
 
-  function deactivateServer(agent){
+  async function deactivateServer(agent){
     console.log(agent.parameters);
-    var {servers} = agent.parameters;
-    var zone = compute.zone('us-east1-b');
-    var vm = zone.vm(servers);
-    vm.stop(function(err, operation, apiResponse) {
-      console.log('instance stopped successfully');
-    });
+    var servers = agent.parameters.servers;
+    var [vms] = await compute.getVMs();
+    await Promise.all(
+      vms.map(async (instance) => {
+        console.log(instance);
+        if (servers.includes(instance.name)) {
+          const [operation] = await compute
+            .zone(instance.zone.id)
+            .vm(instance.name)
+            .stop();
+          return operation.promise();
+        }
+      })
+    );
     agent.add(`Shutting down ${servers}`);
   }
 
@@ -63,7 +79,7 @@ async function listVMs() {
   var str = "";
   for(let vm of vms[0])
     str += `${vm.metadata.name}  ${vm.metadata.status}  ${ vm.metadata.networkInterfaces[0].accessConfigs[0].natIP || ' ' }\n`
-  
+
 	agent.add(str);
 }
 
@@ -77,4 +93,3 @@ async function listVMs() {
 
   agent.handleRequest(intentMap);
 });
-
